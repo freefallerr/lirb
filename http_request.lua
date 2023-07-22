@@ -1,3 +1,4 @@
+local http_response_handler = require("http_response_handler")
 local http = require("socket.http")
 local ltn12 = require("ltn12")
 
@@ -56,8 +57,10 @@ local function process_request(params, valid_urls)
     local response = make_request(params)
     if check_status_code(response.code, params.status_codes) then
         if not params.character_count or #response.body ~= params.character_count then
-            io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", params.target, response.code, #response.body))
-            table.insert(valid_urls, {url = params.target, status = response.code, response = response.body})
+            if not http_response_handler.has_error_content(response.body) then
+                table.insert(valid_urls, {url = params.target, status = response.code, response = response.body})
+                io.write(string.format("\r%s - Status Code: %s, Response Length: %d (VALID)\n", params.target, response.code, #response.body))
+            end
         end
     end
 end
