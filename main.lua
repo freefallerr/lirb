@@ -31,7 +31,7 @@ local function printHelp()
     print("  -cookies test=abc;token=xyz       : Add cookies to the requests")
     print("  -headers Authorization Bearer 123 : Add custom headers to the requests. Use this for Authorization tokens")
     print("  -threads int                      : How many requests can be sent in parallel")
-    print("  -proxy http://127.0.0.1           : Add proxy")
+    print("  -proxy http://127.0.0.1:8080      : Add proxy")
     print("  -port int                         : Add port")
 end
 
@@ -117,6 +117,7 @@ else
             io.flush()
 
             local response = makeRequest(fullURL, headers, cookies, port, proxy)
+            io.write(response)
             if response and response:match("^HTTP/[%d%.]+ 200 OK") then
                 io.write(string.format("\r%s - Response Length: %d\n", fullURL, #response))
             end
