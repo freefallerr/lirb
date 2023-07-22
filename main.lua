@@ -62,8 +62,6 @@ local function makeRequest(target, headers, cookies, port, proxy)
 
     if response_code == 200 then
         return table.concat(response_body)
-    else
-        print("Error:", response_code, response_status)
     end
 end
 
@@ -117,11 +115,8 @@ else
             io.write(string.format("\rProgress: %d / %d", i, #fullURLs))
             io.flush()
 
-            io.write(string.format("\rCurrent FullURL: %s", fullURL))
-            io.flush()
-
             local response = makeRequest(fullURL, headers, cookies, port, proxy)
-            if response then
+            if response and response:match("^HTTP/[%d%.]+ 200 OK") then
                 io.write(string.format("\r%s - Response Length: %d\n", fullURL, #response))
             end
         end
