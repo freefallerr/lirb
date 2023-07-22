@@ -1,6 +1,7 @@
 # lirb
 lua dirb alternative
 
+```
 Usage: lua lirb.lua -url <url> -wl <path> [options]
   --target or -t url                        : Target URL
   --wordlist or -w path                     : Path to wordlist
@@ -13,6 +14,7 @@ Options:
   --port or -p int                          : Add port
   --status-codes or -sc int,int,...          : Comma-separated list of status codes to whitelist
   --user-agent or -ua string                : Custom user-agent to use for requests
+```
 
   TODO:
 
