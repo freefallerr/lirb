@@ -125,9 +125,11 @@ else
 
             local response = makeRequest(fullURL, headers, cookies, port, proxy)
             io.write(response)
+            --[[
             if response and response:match("^HTTP/[%d%.]+ 200 OK") then
                 io.write(string.format("\r%s - Response Length: %d\n", fullURL, #response))
             end
+            ]]
         end
         print()
     else
