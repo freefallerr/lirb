@@ -98,6 +98,11 @@ else
         print("URL:", target)
         print("Wordlist:", wl)
 
+        print("\nArguments:")
+        for argName, argValue in pairs(namedArgs) do
+            print("  -", argName, argValue)
+        end
+
         if cc then
             print("Character Count:", cc)
         end
@@ -135,11 +140,21 @@ else
 
         local fullURLs = getFullURL(target, wl)
 
+        print("\nFullURLs that responded with 200:")
         for _, fullURL in ipairs(fullURLs) do
-            print("Making request to:", fullURL)
             local response = makeRequest(fullURL, headers, cookies, port, proxy)
             if response then
-                print("Response for", fullURL, ":", response:sub(1,100))
+                print(fullURL, " - Response Length:", #response)
+            end
+        end
+
+        print("\nMaking requests for FullURLs:")
+        for i, fullURL in ipairs(fullURLs) do
+            print("Progress:", i, "/", #fullURLs)
+            print("Current FullURL:", fullURL)
+            local response = makeRequest(fullURL, headers, cookies, port, proxy)
+            if response then
+                print("Response for", fullURL, ":", response:sub(1, 100))
             end
         end
     else
