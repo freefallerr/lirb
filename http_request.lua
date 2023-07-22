@@ -37,9 +37,6 @@ local function make_request(params)
         code = status_code,
         status = status_text
     }
-
-    print(response.body)
-
     return response
 end
 
