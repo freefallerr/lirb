@@ -32,16 +32,8 @@ local function process_args(args)
     local named_args = parse_args(args)
 
     for key, value in pairs(default_args) do
-        print(key, value)
+        print(named_args[key])
         named_args[key] = named_args[key] or value
-    end
-
-    if named_args.status_codes then
-        local status_codes = {}
-        for code in named_args.status_codes:gmatch("(%d+)") do
-            table.insert(status_codes, tonumber(code))
-        end
-        named_args.status_codes = status_codes
     end
 
     return named_args
