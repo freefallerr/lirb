@@ -70,6 +70,11 @@ end
 
 local function getFullURL(baseURL, wordlistPath)
     local fullURLs = {}
+
+    if baseURL:sub(-1) ~= "/" then
+        baseURL = baseURL .. "/"
+    end
+    
     for line in io.lines(wordlistPath) do
         local fullURL = baseURL .. line
         table.insert(fullURLs, fullURL)
