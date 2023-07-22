@@ -28,20 +28,22 @@ end
 
 local function printHelp()
     print("Usage: lua lirb.lua -url <url> -wl <path> [options]")
-    print("  --target or -t url                         : Target URL")
-    print("  --wordlist or -w path                      : Path to wordlist")
+    print("  --target or -t url                        : Target URL")
+    print("  --wordlist or -w path                     : Path to wordlist")
     print("Options:")
-    print("  --charactercount or -cc int                : Character count of the response to filter")
-    print("  --cookies or -c test=abc;token=xyz         : Add cookies to the requests")
-    print("  --headers -h Authorization Bearer 123      : Add custom headers to the requests. Use this for Authorization tokens")
-    print("  --threads or -T int                        : How many requests can be sent in parallel")
-    print("  --proxy or -P http://127.0.0.1:8080        : Add proxy")
-    print("  --port or -p int                           : Add port")
-    print("  --statuscodesor -sc int,int,...            : Comma-separated list of status codes to whitelist")
+    print("  --charactercount or -cc int               : Character count of the response to filter")
+    print("  --cookies or -c test=abc;token=xyz        : Add cookies to the requests")
+    print("  --headers or -h Authorization Bearer 123 : Add custom headers to the requests. Use this for Authorization tokens")
+    print("  --threads or -T int                       : How many requests can be sent in parallel")
+    print("  --proxy or -P http://127.0.0.1:8080       : Add proxy")
+    print("  --port or -p int                          : Add port")
+    print("  --statuscodes or -sc int,int,...          : Comma-separated list of status codes to whitelist")
+    print("  --user-agent or -ua string                : Custom user-agent to use for requests")
 end
 
-local function makeRequest(target, headers, cookies, port, proxy)
+local function makeRequest(target, headers, cookies, port, proxy, user_agent)
     local request_headers = {}
+
     if headers then
         for header in headers:gmatch("([^;]+)") do
             local key, value = header:match("([^:]+):%s*(.+)")
@@ -53,6 +55,10 @@ local function makeRequest(target, headers, cookies, port, proxy)
 
     if cookies then
         request_headers["Cookie"] = cookies
+    end
+
+    if user_agent then
+        request_headers["User-Agent"] = user_agent
     end
 
     local response_body = {}
@@ -107,10 +113,34 @@ local function checkStatusCode(statusCode, statuscodes)
     return false
 end
 
+local function processRequest(target, headers, cookies, port, proxy, user_agent, statuscodes)
+    local response, statusCode, statusText = makeRequest(target, headers, cookies, port, proxy, user_agent)
+    if checkStatusCode(statusCode, statuscodes) then
+        io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", target, statusCode, #response))
+    end
+end
 
-if arg[1] == "--help" then
-    printHelp()
-else
+local function runRequests(baseURL, wordlistPath, headers, cookies, port, proxy, user_agent, statuscodes)
+    local fullURLs = getFullURL(baseURL, wordlistPath)
+
+    print("\n=====================================================")
+    for argName, argValue in pairs(namedArgs) do
+        print("" .. argName .. "\t:\t" .. argValue)
+    end
+    print("=====================================================\n")
+
+    for i, fullURL in ipairs(fullURLs) do
+        io.write(string.format("\rProgress: %d / %d", i, #fullURLs))
+        io.flush()
+        processRequest(fullURL, headers, cookies, port, proxy, user_agent, statuscodes)
+    end
+
+    print("\n=====================================================")
+    print("Finished")
+    print("=====================================================\n")
+end
+
+local function main()
     local namedArgs = parseArgs(arg)
 
     local target = namedArgs["target"] or namedArgs["t"]
@@ -121,6 +151,7 @@ else
     local threads = namedArgs["threads"] or namedArgs["T"]
     local proxy = namedArgs["proxy"] or namedArgs["P"]
     local statuscodes = namedArgs["statuscodes"] or namedArgs["sc"]
+    local user_agent = namedArgs["user-agent"] or namedArgs["ua"]
 
     if target and wl then
         local parsed_url = url.parse(target)
@@ -134,28 +165,14 @@ else
             port = parsed_url.scheme == "https" and 443 or 80
         end
 
-        print("\n=====================================================")
-        for argName, argValue in pairs(namedArgs) do
-            print("" .. argName .. "\t:\t" .. argValue)
-        end
-        print("=====================================================\n")
-
-        local fullURLs = getFullURL(target, wl)
-
-        for i, fullURL in ipairs(fullURLs) do
-            io.write(string.format("\rProgress: %d / %d", i, #fullURLs))
-            io.flush()
-
-            local response, statusCode, statusText = makeRequest(fullURL, headers, cookies, port, proxy)
-            if checkStatusCode(statusCode, statuscodes) then
-                io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", fullURL, statusCode, #response))
-            end
-        end
-        print()
+        runRequests(target, wl, headers, cookies, port, proxy, user_agent, statuscodes)
     else
         printHelp()
     end
-    print("\n=====================================================")
-    print("Finished")
-    print("=====================================================\n")
+end
+
+if arg[1] == "--help" then
+    printHelp()
+else
+    main()
 end
