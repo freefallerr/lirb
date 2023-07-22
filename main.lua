@@ -108,7 +108,7 @@ else
         for argName, argValue in pairs(namedArgs) do
             print("" .. argName .. "\t:\t" .. argValue)
         end
-        print("\n=====================================================")
+        print("=====================================================\n")
 
         local fullURLs = getFullURL(target, wl)
 
