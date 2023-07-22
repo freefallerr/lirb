@@ -31,7 +31,7 @@ local function main()
     local params = {
         target = named_args["target"] or named_args["t"],
         wordlist = named_args["wordlist"] or named_args["wl"],
-        character_count = named_args["character-count"] or named_args["cc"],
+        character_count = named_args["character_count"] or named_args["cc"],
         cookies = named_args["cookies"] or named_args["c"],
         headers = named_args["headers"] or named_args["h"],
         threads = named_args["threads"] or named_args["T"],

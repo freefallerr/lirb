@@ -6,7 +6,7 @@ Usage: lua lirb.lua --target <url> --wordlist <path> [options]
   --target or -t url                        : Target URL
   --wordlist or -w path                     : Path to wordlist
 Options:
-  --character-count or -cc int              : Character count of the response to filter
+  --character_count or -cc int              : Character count of the response to filter
   --cookies or -c test=abc;token=xyz        : Add cookies to the requests
   --headers or -h Authorization Bearer 123  : Add custom headers to the requests. Use this for Authorization tokens
   --threads or -T int                       : How many requests can be sent in parallel
