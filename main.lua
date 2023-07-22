@@ -26,6 +26,7 @@ local function parseArgs(args)
     return result
 end
 
+
 local function printHelp()
     print("Usage: lua lirb.lua -url <url> -wl <path> [options]")
     print("  --target or -t url                        : Target URL")

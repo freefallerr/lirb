@@ -21,4 +21,7 @@ Options:
   Proper request handling, analysing what is in the response for known 404 errors. 
   Using some pre-kick off requests to determine if the target is valid and how it handles requests.
 
+
+  Add fuzzing
+
   Enhance the script to be more of automation tool than a dirbuster. 
