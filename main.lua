@@ -108,6 +108,8 @@ else
         for argName, argValue in pairs(namedArgs) do
             print("  -", argName, argValue)
         end
+        print("\n=====================================================")
+        print("\n=====================================================")
 
         local fullURLs = getFullURL(target, wl)
 
