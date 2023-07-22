@@ -1,7 +1,6 @@
 local http = require("socket.http")
 local ltn12 = require("ltn12")
 
--- Function to parse named arguments
 local function parseArgs(args)
     local result = {}
     local i = 1
@@ -11,7 +10,7 @@ local function parseArgs(args)
         local argValue = args[i + 1]
 
         if argName and argName:sub(1, 1) == "-" then
-            argName = argName:sub(2) -- Remove the leading '-'
+            argName = argName:sub(2)
             result[argName] = argValue
             i = i + 2
         else
@@ -22,7 +21,6 @@ local function parseArgs(args)
     return result
 end
 
--- Function to print the help message
 local function printHelp()
     print("Usage: lua lirb.lua -url <url> -wl <path> [options]")
     print("  -url url                          : Target URL")
@@ -80,7 +78,6 @@ if arg[1] == "--help" then
 else
     local namedArgs = parseArgs(arg)
 
-    -- Access named arguments (if present)
     local url = namedArgs["url"]
     local wl = namedArgs["wl"]
     local cc = namedArgs["cc"]
@@ -113,7 +110,6 @@ else
             print("Proxy:", proxy)
         end
 
-        -- Get full URLs from the wordlist
         local fullURLs = getFullURL(url, wl)
 
         -- Make requests for each full URL
@@ -122,7 +118,7 @@ else
             local response = makeRequest(fullURL, headers, cookies, proxy)
             if response then
                 print("Response:")
-                print(response:sub(1, 500)) -- Print the first 500 characters of the response
+                print(response:sub(1, 500))
             else
                 print("Failed to make the request.")
             end
