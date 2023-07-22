@@ -76,8 +76,18 @@ local function print_help()
     print("  --user_agent or -ua string                : Custom user-agent to use for requests")
 end
 
+local function validate_args(params)
+    -- Check if the target starts with "http://" or "https://"
+    if params.target and not (params.target:match("^https?://")) then
+        error("Invalid target URL. It should start with 'http://' or 'https://'.")
+    end
+
+    return true
+end
+
 return {
     parse_args = parse_args,
     process_args = process_args,
     print_help = print_help,
+    validate_args = validate_args,
 }

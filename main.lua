@@ -23,6 +23,11 @@ end
 local function main()
     local named_args = args.process_args(arg)
 
+    local valid_args = args.validate_args(named_args)
+    if not valid_args then
+        return
+    end
+
     local params = {
         target = named_args["target"] or named_args["t"],
         wordlist = named_args["wordlist"] or named_args["wl"],
