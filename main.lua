@@ -32,9 +32,10 @@ local function printHelp()
     print("  -cookies test=abc;token=xyz       : Add cookies to the requests")
     print("  -headers Authorization Bearer 123 : Add custom headers to the requests. Use this for Authorization tokens")
     print("  -threads int                      : How many requests can be sent in parallel")
+    print("  -proxy http://127.0.0.1           : Add proxy")
 end
 
-local function makeRequest(url, headers, cookies)
+local function makeRequest(url, headers, cookies, proxy)
     local request_headers = {}
     if headers then
         for header in headers:gmatch("([^;]+)") do
@@ -54,7 +55,8 @@ local function makeRequest(url, headers, cookies)
         url = url,
         method = "GET",
         headers = request_headers,
-        sink = ltn12.sink.table(response_body)
+        sink = ltn12.sink.table(response_body),
+        proxy = proxy
     }
 
     if response_code == 200 then
@@ -76,7 +78,6 @@ end
 if arg[1] == "--help" then
     printHelp()
 else
-    -- Get the named arguments from the command line
     local namedArgs = parseArgs(arg)
 
     -- Access named arguments (if present)
@@ -86,7 +87,8 @@ else
     local cookies = namedArgs["cookies"]
     local headers = namedArgs["headers"]
     local threads = namedArgs["threads"]
-    -- Check if both arguments are provided
+    local proxy = namedArgs["proxy"]
+
     if url and wl then
         print("URL:", url)
         print("Wordlist:", wl)
@@ -107,13 +109,17 @@ else
             print("Threads:", threads)
         end
 
+        if proxy then
+            print("Proxy:", proxy)
+        end
+
         -- Get full URLs from the wordlist
         local fullURLs = getFullURL(url, wl)
 
         -- Make requests for each full URL
         for _, fullURL in ipairs(fullURLs) do
             print("Making request to:", fullURL)
-            local response = makeRequest(fullURL, headers, cookies)
+            local response = makeRequest(fullURL, headers, cookies, proxy)
             if response then
                 print("Response:")
                 print(response:sub(1, 500)) -- Print the first 500 characters of the response
