@@ -10,8 +10,12 @@ local function parseArgs(args)
         local argName = args[i]
         local argValue = args[i + 1]
 
-        if argName and argName:sub(1, 1) == "-" then
-            argName = argName:sub(2)
+        if argName and argName:sub(1, 2) == "--" then
+            argName = argName:sub(3) -- Remove the leading '--' for long arguments
+            result[argName] = argValue
+            i = i + 2
+        elseif argName and argName:sub(1, 1) == "-" then
+            argName = argName:sub(2) -- Remove the leading '-' for short arguments
             result[argName] = argValue
             i = i + 2
         else
@@ -24,15 +28,16 @@ end
 
 local function printHelp()
     print("Usage: lua lirb.lua -url <url> -wl <path> [options]")
-    print("  -target url                          : Target URL")
-    print("  -wl path                          : Path to wordlist")
+    print("  --target or -t url                         : Target URL")
+    print("  --wordlist or -w path                      : Path to wordlist")
     print("Options:")
-    print("  -cc int                           : Character count of the response to filter")
-    print("  -cookies test=abc;token=xyz       : Add cookies to the requests")
-    print("  -headers Authorization Bearer 123 : Add custom headers to the requests. Use this for Authorization tokens")
-    print("  -threads int                      : How many requests can be sent in parallel")
-    print("  -proxy http://127.0.0.1:8080      : Add proxy")
-    print("  -port int                         : Add port")
+    print("  --charactercount or -cc int                : Character count of the response to filter")
+    print("  --cookies or -c test=abc;token=xyz         : Add cookies to the requests")
+    print("  --headers -h Authorization Bearer 123      : Add custom headers to the requests. Use this for Authorization tokens")
+    print("  --threads or -T int                        : How many requests can be sent in parallel")
+    print("  --proxy or -P http://127.0.0.1:8080        : Add proxy")
+    print("  --port or -p int                           : Add port")
+    print("  --statuscodesor -sc int,int,...            : Comma-separated list of status codes to whitelist")
 end
 
 local function makeRequest(target, headers, cookies, port, proxy)
@@ -50,17 +55,19 @@ local function makeRequest(target, headers, cookies, port, proxy)
         request_headers["Cookie"] = cookies
     end
 
-    local response = {}
-    local _, statusCode, headers, statusText = http.request{
+    local response_body = {}
+    local _, statusCode, response_headers, statusText = http.request{
         url = target,
         method = "GET",
         headers = request_headers,
         proxy = proxy,
         port = port,
-        sink = ltn12.sink.table(response)
+        sink = ltn12.sink.table(response_body)
     }
 
-    return table.concat(response)
+    local response = table.concat(response_body)
+
+    return response, statusCode, statusText
 end
 
 local function getFullURL(baseURL, wordlistPath)
@@ -86,18 +93,34 @@ local function getFullURL(baseURL, wordlistPath)
     return fullURLs
 end
 
+local function checkStatusCode(statusCode, statuscodes)
+    if not statuscodes then
+        statuscodes = {200}
+    end
+
+    for _, code in ipairs(statuscodes) do
+        if tonumber(code) == tonumber(statusCode) then
+            return true
+        end
+    end
+
+    return false
+end
+
+
 if arg[1] == "--help" then
     printHelp()
 else
     local namedArgs = parseArgs(arg)
 
-    local target = namedArgs["target"]
-    local wl = namedArgs["wl"]
-    local cc = namedArgs["cc"]
-    local cookies = namedArgs["cookies"]
-    local headers = namedArgs["headers"]
-    local threads = namedArgs["threads"]
-    local proxy = namedArgs["proxy"]
+    local target = namedArgs["target"] or namedArgs["t"]
+    local wl = namedArgs["wordlist"] or namedArgs["wl"]
+    local cc = namedArgs["charactercount"] or namedArgs["cc"]
+    local cookies = namedArgs["cookies"] or namedArgs["c"]
+    local headers = namedArgs["headers"] or namedArgs["h"]
+    local threads = namedArgs["threads"] or namedArgs["T"]
+    local proxy = namedArgs["proxy"] or namedArgs["P"]
+    local statuscodes = namedArgs["statuscodes"] or namedArgs["sc"]
 
     if target and wl then
         local parsed_url = url.parse(target)
@@ -105,8 +128,8 @@ else
             
         if port then
             target = target:gsub(":" .. port, "")
-        elseif namedArgs["port"] then
-            port = namedArgs["port"]
+        elseif namedArgs["port"] or namedArgs["p"] then
+            port = namedArgs["port"] or namedArgs["p"]
         else
             port = parsed_url.scheme == "https" and 443 or 80
         end
@@ -123,16 +146,16 @@ else
             io.write(string.format("\rProgress: %d / %d", i, #fullURLs))
             io.flush()
 
-            local response = makeRequest(fullURL, headers, cookies, port, proxy)
-            io.write(response)
-            --[[
-            if response and response:match("^HTTP/[%d%.]+ 200 OK") then
-                io.write(string.format("\r%s - Response Length: %d\n", fullURL, #response))
+            local response, statusCode, statusText = makeRequest(fullURL, headers, cookies, port, proxy)
+            if checkStatusCode(statusCode, statuscodes) then
+                io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", fullURL, statusCode, #response))
             end
-            ]]
         end
         print()
     else
         printHelp()
     end
+    print("\n=====================================================")
+    print("Finished")
+    print("=====================================================\n")
 end
