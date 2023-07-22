@@ -184,7 +184,11 @@ local function main()
 
         print("\n=====================================================")
         for argName, argValue in pairs(namedArgs) do
-            print(string.format("  %s:\t%s", argName, argValue))
+            if argName == "port" or argName == "p" then
+                print(string.format("  %s:\t%s", argName, argValue))
+            else
+                print(string.format("  %s:\t\t%s", argName, argValue))
+            end
         end
         print("=====================================================\n")
 
