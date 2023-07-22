@@ -1,24 +1,24 @@
-local function getFullURL(baseURL, wordlistPath)
-    local fullURLs = {}
+local function get_full_url(base_url, wordlist_path)
+    local full_urls = {}
 
-    if baseURL:sub(-1) ~= "/" then
-        baseURL = baseURL .. "/"
+    if base_url:sub(-1) ~= "/" then
+        base_url = base_url .. "/"
     end
 
-    local file = io.open(wordlistPath, "r")
+    local file = io.open(wordlist_path, "r")
     if not file then
         print("Error: Unable to open wordlist file")
-        return fullURLs
+        return full_urls
     end
 
     for line in file:lines() do
         line = line:match("^%s*(.-)%s*$")
-        local fullURL = baseURL .. line
-        table.insert(fullURLs, fullURL)
+        local full_url = base_url .. line
+        table.insert(full_urls, full_url)
     end
 
     file:close()
-    return fullURLs
+    return full_urls
 end
 
 local function table_copy(t)
@@ -30,6 +30,6 @@ local function table_copy(t)
 end
 
 return {
-    getFullURL = getFullURL,
+    get_full_url = get_full_url,
     table_copy = table_copy,
 }

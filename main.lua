@@ -3,8 +3,8 @@ local http_request = require("http_request")
 local url = require("socket.url")
 local utils = require("utils")
 
-local function runRequests(params)
-    local full_urls = utils.getFullURL(params.target, params.wl)
+local function run_requests(params)
+    local full_urls = utils.get_full_url(params.target, params.wl)
     local valid_urls = {}
 
     for i, full_url in ipairs(full_urls) do
@@ -14,55 +14,54 @@ local function runRequests(params)
         local request_params = utils.table_copy(params)
         request_params.target = full_url
 
-        http_request.processRequest(request_params, valid_urls)
+        http_request.process_request(request_params, valid_urls)
     end
 
     return valid_urls
 end
 
-
 local function main()
-    local namedArgs = args.processArgs(arg)
+    local named_args = args.process_args(arg)
 
     local params = {
-        target = namedArgs["target"] or namedArgs["t"],
-        wl = namedArgs["wordlist"] or namedArgs["wl"],
-        character_count = namedArgs["character-count"] or namedArgs["cc"],
-        cookies = namedArgs["cookies"] or namedArgs["c"],
-        headers = namedArgs["headers"] or namedArgs["h"],
-        threads = namedArgs["threads"] or namedArgs["T"],
-        proxy = namedArgs["proxy"] or namedArgs["P"],
-        status_codes = namedArgs["status-codes"] or namedArgs["sc"],
-        user_agent = namedArgs["user-agent"] or namedArgs["ua"]
+        target = named_args["target"] or named_args["t"],
+        wl = named_args["wordlist"] or named_args["wl"],
+        character_count = named_args["character-count"] or named_args["cc"],
+        cookies = named_args["cookies"] or named_args["c"],
+        headers = named_args["headers"] or named_args["h"],
+        threads = named_args["threads"] or named_args["T"],
+        proxy = named_args["proxy"] or named_args["P"],
+        status_codes = named_args["status-codes"] or named_args["sc"],
+        user_agent = named_args["user-agent"] or named_args["ua"]
     }
 
     if params.target and params.wl then
         local parsed_url = url.parse(params.target)
         params.port = parsed_url.port
-            
+
         if params.port then
             params.target = params.target:gsub(":" .. params.port, "")
-        elseif namedArgs["port"] or namedArgs["p"] then
-            params.port = namedArgs["port"] or namedArgs["p"]
+        elseif named_args["port"] or named_args["p"] then
+            params.port = named_args["port"] or named_args["p"]
         else
             params.port = parsed_url.scheme == "https" and 443 or 80
         end
 
-        local maxArgLength = 0
-        for argName, _ in pairs(namedArgs) do
-            if #argName > maxArgLength then
-                maxArgLength = #argName
+        local max_arg_length = 0
+        for arg_name, _ in pairs(named_args) do
+            if #arg_name > max_arg_length then
+                max_arg_length = #arg_name
             end
         end
 
         print("\n=====================================================")
-        for argName, argValue in pairs(namedArgs) do
-            local padding = string.rep(" ", maxArgLength - #argName + 2)
-            print(string.format("  %s:%s%s", argName, padding, tostring(argValue)))
+        for arg_name, arg_value in pairs(named_args) do
+            local padding = string.rep(" ", max_arg_length - #arg_name + 2)
+            print(string.format("  %s:%s%s", arg_name, padding, tostring(arg_value)))
         end
         print("=====================================================\n")
 
-        local valid_urls = runRequests(params)
+        local valid_urls = run_requests(params)
 
         print("\nValid URLs:")
         for _, url_info in ipairs(valid_urls) do
@@ -73,12 +72,12 @@ local function main()
         print("Finished")
         print("=====================================================\n")
     else
-        args.printHelp()
+        args.print_help()
     end
 end
 
 if arg[1] == "--help" then
-    args.printHelp()
+    args.print_help()
 else
     main()
 end

@@ -1,7 +1,7 @@
 local http = require("socket.http")
 local ltn12 = require("ltn12")
 
-local function makeRequest(params)
+local function make_request(params)
     local request_headers = {}
 
     if params.headers then
@@ -40,7 +40,7 @@ local function makeRequest(params)
     return response
 end
 
-local function checkStatusCode(status_code, status_codes)
+local function check_status_code(status_code, status_codes)
     for _, code in ipairs(status_codes) do
         if tonumber(code) == tonumber(status_code) then
             return true
@@ -50,11 +50,10 @@ local function checkStatusCode(status_code, status_codes)
     return false
 end
 
-local function processRequest(params, valid_urls)
-    local response = makeRequest(params)
-
+local function process_request(params, valid_urls)
+    local response = make_request(params)
     print(response.code)
-    if checkStatusCode(response.code, params.status_codes) then
+    if check_status_code(response.code, params.status_codes) then
         if not params.character_count or #response.body ~= params.character_count then
             io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", params.target, response.code, #response.body))
             table.insert(valid_urls, {url = params.target, status = response.code, response = response.body})
@@ -63,7 +62,7 @@ local function processRequest(params, valid_urls)
 end
 
 return {
-    makeRequest = makeRequest,
-    checkStatusCode = checkStatusCode,
-    processRequest = processRequest,
+    make_request = make_request,
+    check_status_code = check_status_code,
+    process_request = process_request,
 }

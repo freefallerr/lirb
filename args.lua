@@ -1,18 +1,18 @@
-local function parseArgs(args)
+local function parse_args(args)
     local result = {}
     local i = 1
 
     while i <= #args do
-        local argName = args[i]
-        local argValue = args[i + 1]
+        local arg_name = args[i]
+        local arg_value = args[i + 1]
 
-        if argName and argName:sub(1, 2) == "--" then
-            argName = argName:sub(3)
-            result[argName] = argValue
+        if arg_name and arg_name:sub(1, 2) == "--" then
+            arg_name = arg_name:sub(3)
+            result[arg_name] = arg_value
             i = i + 2
-        elseif argName and argName:sub(1, 1) == "-" then
-            argName = argName:sub(2)
-            result[argName] = argValue
+        elseif arg_name and arg_name:sub(1, 1) == "-" then
+            arg_name = arg_name:sub(2)
+            result[arg_name] = arg_value
             i = i + 2
         else
             i = i + 1
@@ -22,23 +22,23 @@ local function parseArgs(args)
     return result
 end
 
-local function processArgs(args)
-    local defaultArgs = {
+local function process_args(args)
+    local default_args = {
         threads = 10,
         port = 80,
         status_codes = {200}
     }
 
-    local namedArgs = parseArgs(args)
+    local named_args = parse_args(args)
 
-    for key, value in pairs(defaultArgs) do
-        namedArgs[key] = namedArgs[key] or value
+    for key, value in pairs(default_args) do
+        named_args[key] = named_args[key] or value
     end
 
-    return namedArgs
+    return named_args
 end
 
-local function printHelp()
+local function print_help()
     print("Usage: lua lirb.lua -url <url> -wl <path> [options]")
     print("  --target or -t url                        : Target URL")
     print("  --wordlist or -w path                     : Path to wordlist")
@@ -54,7 +54,7 @@ local function printHelp()
 end
 
 return {
-    parseArgs = parseArgs,
-    processArgs = processArgs,
-    printHelp = printHelp,
+    parse_args = parse_args,
+    process_args = process_args,
+    print_help = print_help,
 }
