@@ -32,6 +32,7 @@ local function printHelp()
     print("  -headers Authorization Bearer 123 : Add custom headers to the requests. Use this for Authorization tokens")
     print("  -threads int                      : How many requests can be sent in parallel")
     print("  -proxy http://127.0.0.1           : Add proxy")
+    print("  -port int                         : Add port")
 end
 
 local function makeRequest(target, headers, cookies, port, proxy)
@@ -119,11 +120,17 @@ else
 
         local parsed_url = url.parse(target)
         local port = parsed_url.port
-
+            
         if port then
             target = target:gsub(":" .. port, "")
+        elseif namedArgs["port"] then
+            port = namedArgs["port"]
         else
             port = parsed_url.scheme == "https" and 443 or 80
+        end
+
+        if port then
+            print("Port:", port)
         end
 
         local fullURLs = getFullURL(target, wl)
