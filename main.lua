@@ -95,11 +95,6 @@ else
     local proxy = namedArgs["proxy"]
 
     if target and wl then
-        print("\nScript Settings:")
-        for argName, argValue in pairs(namedArgs) do
-            print("  -", argName, argValue)
-        end
-
         local parsed_url = url.parse(target)
         local port = parsed_url.port
             
@@ -111,22 +106,27 @@ else
             port = parsed_url.scheme == "https" and 443 or 80
         end
 
-        if port then
-            print("Port:", port)
+        print("\nScript Settings:")
+        for argName, argValue in pairs(namedArgs) do
+            print("  -", argName, argValue)
         end
 
         local fullURLs = getFullURL(target, wl)
 
         for i, fullURL in ipairs(fullURLs) do
-            print("Progress:", i, "/", #fullURLs)
-            print("Current FullURL:", fullURL)
+            io.write(string.format("\rProgress: %d / %d", i, #fullURLs))
+            io.flush()
+
+            io.write(string.format("\rCurrent FullURL: %s", fullURL))
+            io.flush()
+
             local response = makeRequest(fullURL, headers, cookies, port, proxy)
             if response then
-                print(fullURL, " - Response Length:", #response)
+                io.write(string.format("\r%s - Response Length: %d\n", fullURL, #response))
             end
         end
+        print()
     else
         printHelp()
     end
-
 end
