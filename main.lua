@@ -117,13 +117,12 @@ else
 
         local fullURLs = getFullURL(target, wl)
 
-        print("\nMaking requests for FullURLs:")
         for i, fullURL in ipairs(fullURLs) do
             print("Progress:", i, "/", #fullURLs)
             print("Current FullURL:", fullURL)
             local response = makeRequest(fullURL, headers, cookies, port, proxy)
             if response then
-                print("Response for", fullURL, ":", response:sub(1, 100))
+                print(fullURL, " - Response Length:", #response)
             end
         end
     else
