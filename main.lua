@@ -38,7 +38,11 @@ local function main()
 
     if params.target and params.wordlist then
         local parsed_url = url.parse(params.target)
-        params.port = parsed_url.port
+        if parsed_url.port then
+            params.port = parsed_url.port
+            parsed_url.port = nil
+            params.target = url.build(parsed_url)
+        end
 
 
         print("\n=====================================================")
