@@ -1,4 +1,5 @@
 local http = require("socket.http")
+local url = require("socket.url")
 local ltn12 = require("ltn12")
 
 local function parseArgs(args)
@@ -23,7 +24,7 @@ end
 
 local function printHelp()
     print("Usage: lua lirb.lua -url <url> -wl <path> [options]")
-    print("  -url url                          : Target URL")
+    print("  -target url                          : Target URL")
     print("  -wl path                          : Path to wordlist")
     print("Options:")
     print("  -cc int                           : Character count of the response to filter")
@@ -33,7 +34,7 @@ local function printHelp()
     print("  -proxy http://127.0.0.1           : Add proxy")
 end
 
-local function makeRequest(url, headers, cookies, port, proxy)
+local function makeRequest(target, headers, cookies, port, proxy)
     local request_headers = {}
     if headers then
         for header in headers:gmatch("([^;]+)") do
@@ -50,7 +51,7 @@ local function makeRequest(url, headers, cookies, port, proxy)
 
     local response_body = {}
     local response, response_code, response_headers, response_status = http.request{
-        url = url,
+        url = target,
         method = "GET",
         headers = request_headers,
         sink = ltn12.sink.table(response_body),
@@ -84,17 +85,16 @@ if arg[1] == "--help" then
 else
     local namedArgs = parseArgs(arg)
 
-    local url = namedArgs["url"]
+    local target = namedArgs["target"]
     local wl = namedArgs["wl"]
     local cc = namedArgs["cc"]
     local cookies = namedArgs["cookies"]
     local headers = namedArgs["headers"]
     local threads = namedArgs["threads"]
     local proxy = namedArgs["proxy"]
-    local port = namedArgs["port"]
 
-    if url and wl then
-        print("URL:", url)
+    if target and wl then
+        print("URL:", target)
         print("Wordlist:", wl)
 
         if cc then
@@ -117,22 +117,22 @@ else
             print("Proxy:", proxy)
         end
 
-        local parsed_url = url.parse(url)
+        local parsed_url = url.parse(target)
         local port = parsed_url.port
 
         if port then
-            url = url:gsub(":" .. port, "")
+            target = target:gsub(":" .. port, "")
         else
             port = parsed_url.scheme == "https" and 443 or 80
         end
 
-        local fullURLs = getFullURL(url, wl)
+        local fullURLs = getFullURL(target, wl)
 
         for _, fullURL in ipairs(fullURLs) do
             print("Making request to:", fullURL)
             local response = makeRequest(fullURL, headers, cookies, port, proxy)
             if response then
-                print("Response for", url, ":", response:sub(1,100))
+                print("Response for", fullURL, ":", response:sub(1,100))
             end
         end
     else
