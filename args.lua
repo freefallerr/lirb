@@ -10,15 +10,37 @@ local function parse_args(args)
 
     while i <= #args do
         local arg_name = args[i]
-        local arg_value = args[i + 1]
 
         if arg_name and arg_name:sub(1, 2) == "--" then
             arg_name = arg_name:sub(3)
-            result[arg_name] = arg_value
+
+            if arg_name == "status-codes" then
+                -- Split comma-separated status codes into a table
+                local codes = {}
+                local status_codes_str = args[i + 1]
+                for code in status_codes_str:gmatch("%S+") do
+                    table.insert(codes, code)
+                end
+                result[arg_name] = codes
+            else
+                result[arg_name] = args[i + 1]
+            end
+
             i = i + 2
         elseif arg_name and arg_name:sub(1, 1) == "-" then
             arg_name = arg_name:sub(2)
-            result[arg_name] = arg_value
+
+            if arg_name == "sc" then
+                local codes = {}
+                local status_codes_str = args[i + 1]
+                for code in status_codes_str:gmatch("%S+") do
+                    table.insert(codes, code)
+                end
+                result["status-codes"] = codes
+            else
+                result[arg_name] = args[i + 1]
+            end
+
             i = i + 2
         else
             i = i + 1
