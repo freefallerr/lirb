@@ -123,21 +123,11 @@ end
 local function runRequests(baseURL, wordlistPath, headers, cookies, port, proxy, user_agent, statuscodes)
     local fullURLs = getFullURL(baseURL, wordlistPath)
 
-    print("\n=====================================================")
-    for argName, argValue in pairs(namedArgs) do
-        print("" .. argName .. "\t:\t" .. argValue)
-    end
-    print("=====================================================\n")
-
     for i, fullURL in ipairs(fullURLs) do
         io.write(string.format("\rProgress: %d / %d", i, #fullURLs))
         io.flush()
         processRequest(fullURL, headers, cookies, port, proxy, user_agent, statuscodes)
     end
-
-    print("\n=====================================================")
-    print("Finished")
-    print("=====================================================\n")
 end
 
 local function main()
@@ -165,7 +155,17 @@ local function main()
             port = parsed_url.scheme == "https" and 443 or 80
         end
 
+        print("\n=====================================================")
+        for argName, argValue in pairs(namedArgs) do
+            print("" .. argName .. "\t:\t" .. argValue)
+        end
+        print("=====================================================\n")
+
         runRequests(target, wl, headers, cookies, port, proxy, user_agent, statuscodes)
+
+        print("\n=====================================================")
+        print("Finished")
+        print("=====================================================\n")
     else
         printHelp()
     end
