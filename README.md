@@ -2,33 +2,41 @@
 lua dirb alternative
 
 ```
-Usage: lua lirb.lua -url <url> -wl <path> [options]
+Usage: lua lirb.lua --target <url> --wordlist <path> [options]
   --target or -t url                        : Target URL
   --wordlist or -w path                     : Path to wordlist
 Options:
-  --character-count or -cc int               : Character count of the response to filter
+  --character-count or -cc int              : Character count of the response to filter
   --cookies or -c test=abc;token=xyz        : Add cookies to the requests
-  --headers or -h Authorization Bearer 123 : Add custom headers to the requests. Use this for Authorization tokens
+  --headers or -h Authorization Bearer 123  : Add custom headers to the requests. Use this for Authorization tokens
   --threads or -T int                       : How many requests can be sent in parallel
   --proxy or -P http://127.0.0.1:8080       : Add proxy
   --port or -p int                          : Add port
-  --status-codes or -sc int,int,...          : Comma-separated list of status codes to whitelist
-  --user-agent or -ua string                : Custom user-agent to use for requests
+  --status_codes or -sc int,int,...         : Comma-separated list of status codes to whitelist
+  --user_agent or -ua string                : Custom user-agent to use for requests
 ```
 
   Example output:
 ```
+lua main.lua --target http://206.189.120.31:31962 --wordlist ~/tools/SecLists/Discovery/Web-Content/common.txt --proxy http://127.0.0.1:8080
+
 =====================================================
-  target:	http://144.126.206.249:30338
-  wordlist:	/home/test/tools/SecLists/Discovery/Web-Content/common.txt
-  proxy:	http://127.0.0.1:8080
+proxy               : http://127.0.0.1:8080
+wordlist            : /home/test/tools/SecLists/Discovery/Web-Content/common.txt
+status_codes        : 200, 301, 302, 401
+threads             : 1
+port                : 31962
+target              : http://206.189.120.31
+user_agent          : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3
 =====================================================
 
-http://144.126.206.249/.bash_history - Status Code: 200, Response Length: 81
-http://144.126.206.249/.bashrc - Status Code: 200, Response Length: 75
-http://144.126.206.249/.cache - Status Code: 200, Response Length: 74
-http://144.126.206.249/.config - Status Code: 200, Response Length: 75
-Progress: 82 / 4715
+Progress: 4715 / 4715
+Valid URLs:
+
+=====================================================
+Finished
+=====================================================
+
 ```
 
 
