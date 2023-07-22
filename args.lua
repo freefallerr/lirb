@@ -26,7 +26,7 @@ local function process_args(args)
     local default_args = {
         threads = 10,
         port = 80,
-        status_codes = {200, 301, 302, 401}
+        status_codes = 200, 301, 302, 401
     }
 
     local named_args = parse_args(args)
