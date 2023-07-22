@@ -182,13 +182,17 @@ local function main()
             params.port = parsed_url.scheme == "https" and 443 or 80
         end
 
+        local maxArgLength = 0
+        for argName, _ in pairs(namedArgs) do
+            if #argName > maxArgLength then
+                maxArgLength = #argName
+            end
+        end
+
         print("\n=====================================================")
         for argName, argValue in pairs(namedArgs) do
-            if argName == "port" or argName == "p" then
-                print(string.format("  %s:\t%s", argName, argValue))
-            else
-                print(string.format("  %s:\t\t%s", argName, argValue))
-            end
+            local padding = string.rep(" ", maxArgLength - #argName + 2)
+            print(string.format("  %s:%s%s", argName, padding, argValue))
         end
         print("=====================================================\n")
 
