@@ -32,6 +32,7 @@ local function process_args(args)
     local named_args = parse_args(args)
 
     for key, value in pairs(default_args) do
+        print(key, value)
         named_args[key] = named_args[key] or value
     end
 
