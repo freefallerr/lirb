@@ -42,6 +42,9 @@ local function main()
 
 
         print("\n=====================================================")
+        for key, value in pairs(params) do
+            print(string.format("%-20s: %s", key, value))
+        end
         print("=====================================================\n")
 
         local valid_urls = run_requests(params)
