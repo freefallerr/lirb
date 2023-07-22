@@ -23,28 +23,16 @@ end
 local function main()
     local named_args = args.process_args(arg)
 
-    local params = {
-        target = named_args["target"] or named_args["t"],
-        wl = named_args["wordlist"] or named_args["wl"],
-        character_count = named_args["character-count"] or named_args["cc"],
-        cookies = named_args["cookies"] or named_args["c"],
-        headers = named_args["headers"] or named_args["h"],
-        threads = named_args["threads"] or named_args["T"],
-        proxy = named_args["proxy"] or named_args["P"],
-        status_codes = named_args["status-codes"] or named_args["sc"],
-        user_agent = named_args["user-agent"] or named_args["ua"]
-    }
+    if named_args.target and named_args.wl then
+        local parsed_url = url.parse(named_args.target)
+        named_args.port = parsed_url.port
 
-    if params.target and params.wl then
-        local parsed_url = url.parse(params.target)
-        params.port = parsed_url.port
-
-        if params.port then
-            params.target = params.target:gsub(":" .. params.port, "")
+        if named_args.port then
+            named_args.target = named_args.target:gsub(":" .. named_args.port, "")
         elseif named_args["port"] or named_args["p"] then
-            params.port = named_args["port"] or named_args["p"]
+            named_args.port = named_args["port"] or named_args["p"]
         else
-            params.port = parsed_url.scheme == "https" and 443 or 80
+            named_args.port = parsed_url.scheme == "https" and 443 or 80
         end
 
         local max_arg_length = 0
@@ -61,7 +49,7 @@ local function main()
         end
         print("=====================================================\n")
 
-        local valid_urls = run_requests(params)
+        local valid_urls = run_requests(named_args)
 
         print("\nValid URLs:")
         for _, url_info in ipairs(valid_urls) do

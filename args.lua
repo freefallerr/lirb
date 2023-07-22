@@ -1,3 +1,9 @@
+local defaults = {
+    threads = 1,
+    status_codes = {200, 301, 302, 401},
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+}
+
 local function parse_args(args)
     local result = {}
     local i = 1
@@ -23,17 +29,10 @@ local function parse_args(args)
 end
 
 local function process_args(args)
-    local default_args = {
-        threads = 10,
-        port = 80,
-        status_codes = {200, 301, 302, 403}
-    }
-
     local named_args = parse_args(args)
 
-    for key, value in pairs(default_args) do
-        named_args[key] = named_args[key] or value
-        print(named_args[key])
+    for key, default_value in pairs(defaults) do
+        named_args[key] = named_args[key] or default_value
     end
 
     return named_args
