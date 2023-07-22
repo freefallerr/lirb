@@ -169,7 +169,7 @@ local function main()
 
         print("\n=====================================================")
         for argName, argValue in pairs(namedArgs) do
-            print(argName .. ":\t" .. argValue)
+            print(string.format("  %s:\t%s", argName, argValue))
         end
         print("=====================================================\n")
 
