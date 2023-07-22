@@ -26,6 +26,21 @@ local function parseArgs(args)
     return result
 end
 
+local function processArgs(args)
+    local defaultArgs = {
+        threads = 10,
+        port = 80,
+        status_codes = 200
+    }
+
+    local namedArgs = parseArgs(args)
+
+    for key, value in pairs(defaultArgs) do
+        namedArgs[key] = namedArgs[key] or value
+    end
+
+    return namedArgs
+end
 
 local function printHelp()
     print("Usage: lua lirb.lua -url <url> -wl <path> [options]")
@@ -141,7 +156,7 @@ end
 
 
 local function main()
-    local namedArgs = parseArgs(arg)
+    local namedArgs = processArgs(arg)
 
     local params = {
         target = namedArgs["target"] or namedArgs["t"],
