@@ -2,6 +2,7 @@ local defaults = {
     threads = 1,
     status_codes = {200, 301, 302, 401},
     user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+    port = 80,
 }
 
 local function parse_args(args)

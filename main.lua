@@ -32,33 +32,16 @@ local function main()
         threads = named_args["threads"] or named_args["T"],
         proxy = named_args["proxy"] or named_args["P"],
         status_codes = named_args["status-codes"] or named_args["sc"],
-        user_agent = named_args["user-agent"] or named_args["ua"]
+        user_agent = named_args["user-agent"] or named_args["ua"],
+        port = named_args["port"] or named_args ["p"]
     }
 
     if params.target and params.wordlist then
         local parsed_url = url.parse(params.target)
         params.port = parsed_url.port
 
-        if params.port then
-            params.target = params.target:gsub(":" .. params.port, "")
-        elseif named_args["port"] or named_args["p"] then
-            params.port = named_args["port"] or named_args["p"]
-        else
-            params.port = parsed_url.scheme == "https" and 443 or 80
-        end
-
-        local max_arg_length = 0
-        for arg_name, _ in pairs(named_args) do
-            if #arg_name > max_arg_length then
-                max_arg_length = #arg_name
-            end
-        end
 
         print("\n=====================================================")
-        for arg_name, arg_value in pairs(named_args) do
-            local padding = string.rep(" ", max_arg_length - #arg_name + 2)
-            print(string.format("  %s:%s%s", arg_name, padding, tostring(arg_value)))
-        end
         print("=====================================================\n")
 
         local valid_urls = run_requests(params)
