@@ -105,9 +105,8 @@ else
         end
 
         print("\n=====================================================")
-        print("\nScript Settings:")
         for argName, argValue in pairs(namedArgs) do
-            print(argName .. ":" .. argValue)
+            print("" .. argName .. "\t:\t" .. argValue)
         end
         print("\n=====================================================")
 
