@@ -31,8 +31,8 @@ local function main()
         headers = named_args["headers"] or named_args["h"],
         threads = named_args["threads"] or named_args["T"],
         proxy = named_args["proxy"] or named_args["P"],
-        status_codes = named_args["status-codes"] or named_args["sc"],
-        user_agent = named_args["user-agent"] or named_args["ua"],
+        status_codes = named_args["status_codes"] or named_args["sc"],
+        user_agent = named_args["user_agent"] or named_args["ua"],
         port = named_args["port"] or named_args ["p"]
     }
 

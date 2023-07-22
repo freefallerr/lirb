@@ -72,8 +72,8 @@ local function print_help()
     print("  --threads or -T int                       : How many requests can be sent in parallel")
     print("  --proxy or -P http://127.0.0.1:8080       : Add proxy")
     print("  --port or -p int                          : Add port")
-    print("  --status-codes or -sc int,int,...         : Comma-separated list of status codes to whitelist")
-    print("  --user-agent or -ua string                : Custom user-agent to use for requests")
+    print("  --status_codes or -sc int,int,...         : Comma-separated list of status codes to whitelist")
+    print("  --user_agent or -ua string                : Custom user-agent to use for requests")
 end
 
 return {
