@@ -53,8 +53,6 @@ end
 local function process_request(params, valid_urls)
     local response = make_request(params)
     print(response.code)
-    print(params.status_codes)
-    
     if check_status_code(response.code, params.status_codes) then
         if not params.character_count or #response.body ~= params.character_count then
             io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", params.target, response.code, #response.body))
