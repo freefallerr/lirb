@@ -48,13 +48,17 @@ local function makeRequest(url, headers, cookies, proxy)
         request_headers["Cookie"] = cookies
     end
 
+    local parsed_url = url.parse(url)
+    local port = parsed_url.port or (parsed_url.scheme == "https" and 443 or 80)
+
     local response_body = {}
     local response, response_code, response_headers, response_status = http.request{
         url = url,
         method = "GET",
         headers = request_headers,
         sink = ltn12.sink.table(response_body),
-        proxy = proxy
+        proxy = proxy,
+        port = port
     }
 
     if response_code == 200 then
@@ -112,7 +116,6 @@ else
 
         local fullURLs = getFullURL(url, wl)
 
-        -- Make requests for each full URL
         for _, fullURL in ipairs(fullURLs) do
             print("Making request to:", fullURL)
             local response = makeRequest(fullURL, headers, cookies, proxy)
