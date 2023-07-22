@@ -126,7 +126,7 @@ local function runRequests(base_url, wordlist_path, headers, cookies, port, prox
     
     local valid_urls = {}
 
-    for i, fullURL in ipairs(full_urls) do
+    for i, full_urls in ipairs(full_urls) do
         io.write(string.format("\rProgress: %d / %d", i, #full_urls))
         io.flush()
         processRequest(full_urls, headers, cookies, port, proxy, user_agent, status_codes, valid_urls)
