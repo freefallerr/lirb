@@ -58,7 +58,7 @@ local function main()
         print("\n=====================================================")
         for argName, argValue in pairs(namedArgs) do
             local padding = string.rep(" ", maxArgLength - #argName + 2)
-            print(string.format("  %s:%s%s", argName, padding, argValue))
+            print(string.format("  %s:%s%s", argName, padding, tostring(argValue)))
         end
         print("=====================================================\n")
 
