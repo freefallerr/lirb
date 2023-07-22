@@ -1,7 +1,7 @@
 local args = require("args")
 local http_request = require("http_request")
 local url = require("socket.url")
-local utils = require("lua.lirb.utils")
+local utils = require("utils")
 
 local function runRequests(params)
     local full_urls = utils.getFullURL(params.target, params.wl)
