@@ -60,7 +60,7 @@ local function makeRequest(url, headers, cookies, proxy)
     if response_code == 200 then
         return table.concat(response_body)
     else
-        return nil
+        print("Error:", response_code, response_status)
     end
 end
 
@@ -117,10 +117,7 @@ else
             print("Making request to:", fullURL)
             local response = makeRequest(fullURL, headers, cookies, proxy)
             if response then
-                print("Response:")
-                print(response:sub(1, 500))
-            else
-                print("Failed to make the request.")
+                print("Response for", url, ":", response:sub(1,100))
             end
         end
     else
