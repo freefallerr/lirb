@@ -33,7 +33,7 @@ local function printHelp()
     print("  -proxy http://127.0.0.1           : Add proxy")
 end
 
-local function makeRequest(url, headers, cookies, proxy)
+local function makeRequest(url, headers, cookies, port, proxy)
     local request_headers = {}
     if headers then
         for header in headers:gmatch("([^;]+)") do
@@ -47,9 +47,6 @@ local function makeRequest(url, headers, cookies, proxy)
     if cookies then
         request_headers["Cookie"] = cookies
     end
-
-    local parsed_url = url.parse(url)
-    local port = parsed_url.port or (parsed_url.scheme == "https" and 443 or 80)
 
     local response_body = {}
     local response, response_code, response_headers, response_status = http.request{
@@ -74,7 +71,7 @@ local function getFullURL(baseURL, wordlistPath)
     if baseURL:sub(-1) ~= "/" then
         baseURL = baseURL .. "/"
     end
-    
+
     for line in io.lines(wordlistPath) do
         local fullURL = baseURL .. line
         table.insert(fullURLs, fullURL)
@@ -94,6 +91,7 @@ else
     local headers = namedArgs["headers"]
     local threads = namedArgs["threads"]
     local proxy = namedArgs["proxy"]
+    local port = namedArgs["port"]
 
     if url and wl then
         print("URL:", url)
@@ -119,11 +117,20 @@ else
             print("Proxy:", proxy)
         end
 
+        local parsed_url = url.parse(url)
+        local port = parsed_url.port
+
+        if port then
+            url = url:gsub(":" .. port, "")
+        else
+            port = parsed_url.scheme == "https" and 443 or 80
+        end
+
         local fullURLs = getFullURL(url, wl)
 
         for _, fullURL in ipairs(fullURLs) do
             print("Making request to:", fullURL)
-            local response = makeRequest(fullURL, headers, cookies, proxy)
+            local response = makeRequest(fullURL, headers, cookies, port, proxy)
             if response then
                 print("Response for", url, ":", response:sub(1,100))
             end
