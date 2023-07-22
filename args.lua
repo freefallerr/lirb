@@ -39,7 +39,7 @@ local function process_args(args)
 end
 
 local function print_help()
-    print("Usage: lua lirb.lua -url <url> -wl <path> [options]")
+    print("Usage: lua lirb.lua --target <url> --wordlist <path> [options]")
     print("  --target or -t url                        : Target URL")
     print("  --wordlist or -w path                     : Path to wordlist")
     print("Options:")
