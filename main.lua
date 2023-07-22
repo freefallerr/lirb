@@ -11,7 +11,7 @@ local function runRequests(params)
         io.write(string.format("\rProgress: %d / %d", i, #full_urls))
         io.flush()
 
-        local request_params = http_request.table_copy(params)
+        local request_params = utils.table_copy(params)
         request_params.target = full_url
 
         http_request.processRequest(request_params, valid_urls)
