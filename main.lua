@@ -104,11 +104,11 @@ else
             port = parsed_url.scheme == "https" and 443 or 80
         end
 
+        print("\n=====================================================")
         print("\nScript Settings:")
         for argName, argValue in pairs(namedArgs) do
-            print("  -", argName, argValue)
+            print(argName .. ":" .. argValue)
         end
-        print("\n=====================================================")
         print("\n=====================================================")
 
         local fullURLs = getFullURL(target, wl)
