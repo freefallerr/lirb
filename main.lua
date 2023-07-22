@@ -50,19 +50,17 @@ local function makeRequest(target, headers, cookies, port, proxy)
         request_headers["Cookie"] = cookies
     end
 
-    local response_body = {}
-    local response, response_code, response_headers, response_status = http.request{
+    local response = {}
+    local _, statusCode, headers, statusText = http.request{
         url = target,
         method = "GET",
         headers = request_headers,
-        sink = ltn12.sink.table(response_body),
         proxy = proxy,
-        port = port
+        port = port,
+        sink = ltn12.sink.table(response)
     }
 
-    if response_code == 200 then
-        return table.concat(response_body)
-    end
+    return statusCode, statusText, headers
 end
 
 local function getFullURL(baseURL, wordlistPath)
@@ -72,10 +70,19 @@ local function getFullURL(baseURL, wordlistPath)
         baseURL = baseURL .. "/"
     end
 
-    for line in io.lines(wordlistPath) do
+    local file = io.open(wordlistPath, "r")
+    if not file then
+        print("Error: Unable to open wordlist file")
+        return fullURLs
+    end
+
+    for line in file:lines() do
+        line = line:match("^%s*(.-)%s*$")
         local fullURL = baseURL .. line
         table.insert(fullURLs, fullURL)
     end
+
+    file:close()
     return fullURLs
 end
 
