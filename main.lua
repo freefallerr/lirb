@@ -41,11 +41,11 @@ local function printHelp()
     print("  --user-agent or -ua string                : Custom user-agent to use for requests")
 end
 
-local function makeRequest(target, headers, cookies, port, proxy, user_agent)
+local function makeRequest(params)
     local request_headers = {}
 
-    if headers then
-        for header in headers:gmatch("([^;]+)") do
+    if params.headers then
+        for header in params.headers:gmatch("([^;]+)") do
             local key, value = header:match("([^:]+):%s*(.+)")
             if key and value then
                 request_headers[key] = value
@@ -53,21 +53,21 @@ local function makeRequest(target, headers, cookies, port, proxy, user_agent)
         end
     end
 
-    if cookies then
-        request_headers["Cookie"] = cookies
+    if params.cookies then
+        request_headers["Cookie"] = params.cookies
     end
 
-    if user_agent then
-        request_headers["User-Agent"] = user_agent
+    if params.user_agent then
+        request_headers["User-Agent"] = params.user_agent
     end
 
     local response_body = {}
     local _, status_code, response_headers, status_text = http.request{
-        url = target,
+        url = params.target,
         method = "GET",
         headers = request_headers,
-        proxy = proxy,
-        port = port,
+        proxy = params.proxy,
+        port = params.port,
         sink = ltn12.sink.table(response_body)
     }
 
@@ -113,60 +113,66 @@ local function checkStatusCode(status_code, status_codes)
     return false
 end
 
-local function processRequest(target, headers, cookies, port, proxy, user_agent, status_codes, valid_urls)
-    local response, status_code, status_text = makeRequest(target, headers, cookies, port, proxy, user_agent)
-    if checkStatusCode(status_code, status_codes) then
-        io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", target, status_code, #response))
-        table.insert(valid_urls, {url = target, status = status_code, response = response})
+local function processRequest(params, valid_urls)
+    local response, status_code, status_text = makeRequest(params)
+    if checkStatusCode(status_code, params.status_codes) then
+        if not params.character_count or #response ~= params.character_count then
+            io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", params.target, status_code, #response))
+            table.insert(valid_urls, {url = params.target, status = status_code, response = response})
+        end
     end
 end
 
-local function runRequests(base_url, wordlist_path, headers, cookies, port, proxy, user_agent, status_codes)
-    local full_urls = getFullURL(base_url, wordlist_path)
+local function runRequests(params)
+    local full_urls = getFullURL(params.target, params.wl)
     
     local valid_urls = {}
 
     for i, full_url in ipairs(full_urls) do
         io.write(string.format("\rProgress: %d / %d", i, #full_urls))
         io.flush()
-        processRequest(full_url, headers, cookies, port, proxy, user_agent, status_codes, valid_urls)
+        params.target = full_url
+        processRequest(params, valid_urls)
     end
 
     return valid_urls
 end
 
+
 local function main()
     local namedArgs = parseArgs(arg)
 
-    local target = namedArgs["target"] or namedArgs["t"]
-    local wl = namedArgs["wordlist"] or namedArgs["wl"]
-    local cc = namedArgs["character-count"] or namedArgs["cc"]
-    local cookies = namedArgs["cookies"] or namedArgs["c"]
-    local headers = namedArgs["headers"] or namedArgs["h"]
-    local threads = namedArgs["threads"] or namedArgs["T"]
-    local proxy = namedArgs["proxy"] or namedArgs["P"]
-    local status_codes = namedArgs["status-codes"] or namedArgs["sc"]
-    local user_agent = namedArgs["user-agent"] or namedArgs["ua"]
+    local params = {
+        target = namedArgs["target"] or namedArgs["t"],
+        wl = namedArgs["wordlist"] or namedArgs["wl"],
+        character_count = namedArgs["character-count"] or namedArgs["cc"],
+        cookies = namedArgs["cookies"] or namedArgs["c"],
+        headers = namedArgs["headers"] or namedArgs["h"],
+        threads = namedArgs["threads"] or namedArgs["T"],
+        proxy = namedArgs["proxy"] or namedArgs["P"],
+        status_codes = namedArgs["status-codes"] or namedArgs["sc"],
+        user_agent = namedArgs["user-agent"] or namedArgs["ua"]
+    }
 
-    if target and wl then
-        local parsed_url = url.parse(target)
-        local port = parsed_url.port
+    if params.target and params.wl then
+        local parsed_url = url.parse(params.target)
+        params.port = parsed_url.port
             
-        if port then
-            target = target:gsub(":" .. port, "")
+        if params.port then
+            params.target = params.target:gsub(":" .. params.port, "")
         elseif namedArgs["port"] or namedArgs["p"] then
-            port = namedArgs["port"] or namedArgs["p"]
+            params.port = namedArgs["port"] or namedArgs["p"]
         else
-            port = parsed_url.scheme == "https" and 443 or 80
+            params.port = parsed_url.scheme == "https" and 443 or 80
         end
 
         print("\n=====================================================")
         for argName, argValue in pairs(namedArgs) do
-            print("" .. argName .. "\t:\t" .. argValue)
+            print(argName .. ":\t" .. argValue)
         end
         print("=====================================================\n")
 
-        local valid_urls = runRequests(target, wl, headers, cookies, port, proxy, user_agent, status_codes)
+        local valid_urls = runRequests(params)
 
         print("\nValid URLs:")
         for _, url_info in ipairs(valid_urls) do
