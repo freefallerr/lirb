@@ -11,11 +11,11 @@ local function parseArgs(args)
         local argValue = args[i + 1]
 
         if argName and argName:sub(1, 2) == "--" then
-            argName = argName:sub(3) -- Remove the leading '--' for long arguments
+            argName = argName:sub(3)
             result[argName] = argValue
             i = i + 2
         elseif argName and argName:sub(1, 1) == "-" then
-            argName = argName:sub(2) -- Remove the leading '-' for short arguments
+            argName = argName:sub(2)
             result[argName] = argValue
             i = i + 2
         else
@@ -31,13 +31,13 @@ local function printHelp()
     print("  --target or -t url                        : Target URL")
     print("  --wordlist or -w path                     : Path to wordlist")
     print("Options:")
-    print("  --character-count or -cc int               : Character count of the response to filter")
+    print("  --character-count or -cc int              : Character count of the response to filter")
     print("  --cookies or -c test=abc;token=xyz        : Add cookies to the requests")
-    print("  --headers or -h Authorization Bearer 123 : Add custom headers to the requests. Use this for Authorization tokens")
+    print("  --headers or -h Authorization Bearer 123  : Add custom headers to the requests. Use this for Authorization tokens")
     print("  --threads or -T int                       : How many requests can be sent in parallel")
     print("  --proxy or -P http://127.0.0.1:8080       : Add proxy")
     print("  --port or -p int                          : Add port")
-    print("  --status-codes or -sc int,int,...          : Comma-separated list of status codes to whitelist")
+    print("  --status-codes or -sc int,int,...         : Comma-separated list of status codes to whitelist")
     print("  --user-agent or -ua string                : Custom user-agent to use for requests")
 end
 
