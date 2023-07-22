@@ -47,7 +47,7 @@ local function main()
 
         print("\n=====================================================")
         for key, value in pairs(params) do
-            print(string.format("%-20s: %s", key, value))
+            print(string.format("%-20s: %s", key, utils.format_value(value)))
         end
         print("=====================================================\n")
 

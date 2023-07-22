@@ -29,7 +29,16 @@ local function table_copy(t)
     return copy
 end
 
+local function format_value(value)
+    if type(value) == "table" then
+        return table.concat(value, ", ")
+    else
+        return tostring(value)
+    end
+end
+
 return {
     get_full_url = get_full_url,
     table_copy = table_copy,
+    format_value = format_value,
 }
