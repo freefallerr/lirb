@@ -60,7 +60,7 @@ local function makeRequest(target, headers, cookies, port, proxy)
         sink = ltn12.sink.table(response)
     }
 
-    return statusCode, statusText, headers
+    return table.concat(response)
 end
 
 local function getFullURL(baseURL, wordlistPath)
