@@ -95,32 +95,9 @@ else
     local proxy = namedArgs["proxy"]
 
     if target and wl then
-        print("URL:", target)
-        print("Wordlist:", wl)
-
-        print("\nArguments:")
+        print("\nScript Settings:")
         for argName, argValue in pairs(namedArgs) do
             print("  -", argName, argValue)
-        end
-
-        if cc then
-            print("Character Count:", cc)
-        end
-
-        if cookies then
-            print("Cookies:", cookies)
-        end
-
-        if headers then
-            print("Headers:", headers)
-        end
-
-        if threads then
-            print("Threads:", threads)
-        end
-
-        if proxy then
-            print("Proxy:", proxy)
         end
 
         local parsed_url = url.parse(target)
@@ -139,14 +116,6 @@ else
         end
 
         local fullURLs = getFullURL(target, wl)
-
-        print("\nFullURLs that responded with 200:")
-        for _, fullURL in ipairs(fullURLs) do
-            local response = makeRequest(fullURL, headers, cookies, port, proxy)
-            if response then
-                print(fullURL, " - Response Length:", #response)
-            end
-        end
 
         print("\nMaking requests for FullURLs:")
         for i, fullURL in ipairs(fullURLs) do
