@@ -26,7 +26,7 @@ local function processArgs(args)
     local defaultArgs = {
         threads = 10,
         port = 80,
-        status_codes = 200
+        status_codes = {200}
     }
 
     local namedArgs = parseArgs(args)
