@@ -31,9 +31,13 @@ local function makeRequest(params)
         sink = ltn12.sink.table(response_body)
     }
 
-    local response = table.concat(response_body)
+    local response = {
+        body = table.concat(response_body),
+        code = status_code,
+        status = status_text
+    }
 
-    return response, status_code, status_text
+    return response
 end
 
 local function checkStatusCode(status_code, status_codes)
@@ -47,11 +51,13 @@ local function checkStatusCode(status_code, status_codes)
 end
 
 local function processRequest(params, valid_urls)
-    local response, status_code, status_text = makeRequest(params)
-    if checkStatusCode(status_code, params.status_codes) then
-        if not params.character_count or #response ~= params.character_count then
-            io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", params.target, status_code, #response))
-            table.insert(valid_urls, {url = params.target, status = status_code, response = response})
+    local response = makeRequest(params)
+
+    print(response.code)
+    if checkStatusCode(response.code, params.status_codes) then
+        if not params.character_count or #response.body ~= params.character_count then
+            io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", params.target, response.code, #response.body))
+            table.insert(valid_urls, {url = params.target, status = response.code, response = response.body})
         end
     end
 end
