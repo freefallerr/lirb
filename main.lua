@@ -31,13 +31,13 @@ local function printHelp()
     print("  --target or -t url                        : Target URL")
     print("  --wordlist or -w path                     : Path to wordlist")
     print("Options:")
-    print("  --charactercount or -cc int               : Character count of the response to filter")
+    print("  --character-count or -cc int               : Character count of the response to filter")
     print("  --cookies or -c test=abc;token=xyz        : Add cookies to the requests")
     print("  --headers or -h Authorization Bearer 123 : Add custom headers to the requests. Use this for Authorization tokens")
     print("  --threads or -T int                       : How many requests can be sent in parallel")
     print("  --proxy or -P http://127.0.0.1:8080       : Add proxy")
     print("  --port or -p int                          : Add port")
-    print("  --statuscodes or -sc int,int,...          : Comma-separated list of status codes to whitelist")
+    print("  --status-codes or -sc int,int,...          : Comma-separated list of status codes to whitelist")
     print("  --user-agent or -ua string                : Custom user-agent to use for requests")
 end
 
@@ -62,7 +62,7 @@ local function makeRequest(target, headers, cookies, port, proxy, user_agent)
     end
 
     local response_body = {}
-    local _, statusCode, response_headers, statusText = http.request{
+    local _, status_code, response_headers, status_text = http.request{
         url = target,
         method = "GET",
         headers = request_headers,
@@ -73,7 +73,7 @@ local function makeRequest(target, headers, cookies, port, proxy, user_agent)
 
     local response = table.concat(response_body)
 
-    return response, statusCode, statusText
+    return response, status_code, status_text
 end
 
 local function getFullURL(baseURL, wordlistPath)
@@ -99,13 +99,13 @@ local function getFullURL(baseURL, wordlistPath)
     return fullURLs
 end
 
-local function checkStatusCode(statusCode, statuscodes)
-    if not statuscodes then
-        statuscodes = {200}
+local function checkStatusCode(status_code, status_codes)
+    if not status_codes then
+        status_codes = {200}
     end
 
-    for _, code in ipairs(statuscodes) do
-        if tonumber(code) == tonumber(statusCode) then
+    for _, code in ipairs(status_codes) do
+        if tonumber(code) == tonumber(status_code) then
             return true
         end
     end
@@ -113,21 +113,26 @@ local function checkStatusCode(statusCode, statuscodes)
     return false
 end
 
-local function processRequest(target, headers, cookies, port, proxy, user_agent, statuscodes)
-    local response, statusCode, statusText = makeRequest(target, headers, cookies, port, proxy, user_agent)
-    if checkStatusCode(statusCode, statuscodes) then
-        io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", target, statusCode, #response))
+local function processRequest(target, headers, cookies, port, proxy, user_agent, status_codes, valid_urls)
+    local response, status_code, status_text = makeRequest(target, headers, cookies, port, proxy, user_agent)
+    if checkStatusCode(status_code, status_codes) then
+        io.write(string.format("\r%s - Status Code: %s, Response Length: %d\n", target, status_code, #response))
+        table.insert(valid_urls, {url = target, status = status_code, response = response})
     end
 end
 
-local function runRequests(baseURL, wordlistPath, headers, cookies, port, proxy, user_agent, statuscodes)
-    local fullURLs = getFullURL(baseURL, wordlistPath)
+local function runRequests(base_url, wordlist_path, headers, cookies, port, proxy, user_agent, status_codes)
+    local full_urls = getFullURL(base_url, wordlist_path)
+    
+    local valid_urls = {}
 
-    for i, fullURL in ipairs(fullURLs) do
-        io.write(string.format("\rProgress: %d / %d", i, #fullURLs))
+    for i, fullURL in ipairs(full_urls) do
+        io.write(string.format("\rProgress: %d / %d", i, #full_urls))
         io.flush()
-        processRequest(fullURL, headers, cookies, port, proxy, user_agent, statuscodes)
+        processRequest(full_urls, headers, cookies, port, proxy, user_agent, status_codes, valid_urls)
     end
+
+    return valid_urls
 end
 
 local function main()
@@ -135,12 +140,12 @@ local function main()
 
     local target = namedArgs["target"] or namedArgs["t"]
     local wl = namedArgs["wordlist"] or namedArgs["wl"]
-    local cc = namedArgs["charactercount"] or namedArgs["cc"]
+    local cc = namedArgs["character-count"] or namedArgs["cc"]
     local cookies = namedArgs["cookies"] or namedArgs["c"]
     local headers = namedArgs["headers"] or namedArgs["h"]
     local threads = namedArgs["threads"] or namedArgs["T"]
     local proxy = namedArgs["proxy"] or namedArgs["P"]
-    local statuscodes = namedArgs["statuscodes"] or namedArgs["sc"]
+    local status_codes = namedArgs["status-codes"] or namedArgs["sc"]
     local user_agent = namedArgs["user-agent"] or namedArgs["ua"]
 
     if target and wl then
@@ -161,7 +166,12 @@ local function main()
         end
         print("=====================================================\n")
 
-        runRequests(target, wl, headers, cookies, port, proxy, user_agent, statuscodes)
+        local valid_urls = runRequests(target, wl, headers, cookies, port, proxy, user_agent, status_codes)
+
+        print("\nValid URLs:")
+        for _, url_info in ipairs(valid_urls) do
+            print(url_info.url)
+        end
 
         print("\n=====================================================")
         print("Finished")
